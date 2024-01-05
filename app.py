@@ -86,11 +86,21 @@ y = df_clean['target']
 smote = SMOTE(random_state=42)
 X, y = smote.fit_resample(X, y)
 
-model = pickle.load(open("model/xgb.pkl", 'rb'))
+xgb_model = pickle.load(open("model/xgb.pkl", 'rb'))
+rf_model = pickle.load(open("model/rf.pkl", 'rb'))
+knn_model = pickle.load(open("model/knn.pkl", 'rb'))
 
-y_pred = model.predict(X)
-accuracy = accuracy_score(y, y_pred)
-accuracy = round((accuracy * 100), 2)
+xgb_y_pred = xgb_model.predict(X)
+xgb_accuracy = accuracy_score(y, xgb_y_pred)
+xgb_accuracy = round((xgb_accuracy * 100), 2)
+
+rf_y_pred = rf_model.predict(X)
+rf_accuracy = accuracy_score(y, rf_y_pred)
+rf_accuracy = round((rf_accuracy * 100), 2)
+
+knn_y_pred = knn_model.predict(X)
+knn_accuracy = accuracy_score(y, knn_y_pred)
+knn_accuracy = round((knn_accuracy * 100), 2)
 
 df_final = X
 df_final['target'] = y
@@ -104,14 +114,28 @@ st.set_page_config(
 )
 
 st.title("Hungarian Heart Disease")
-st.write(f"**_Model's Accuracy_** :  :green[**{accuracy}**]% (:red[_XGBoost Model_])")
+
+data_model = {
+  'XGBoost Model': f'{xgb_accuracy :.2f}%',
+  'Random Forest Model': f'{rf_accuracy :.2f}%',
+  'KNN Model': f'{knn_accuracy :.2f}%',
+}
+
+df_model = pd.DataFrame(data_model, index=['accuracy'])
+
+st.header("Model's Accuracy")
 st.write("")
+st.dataframe(df_model)
 
 tab1, tab2 = st.tabs(["Single-predict", "Multi-predict"])
 
 with tab1:
   st.sidebar.header("**User Input** Sidebar")
 
+  model = st.sidebar.selectbox(label=":violet[**Model**]", options=["XGBoost", "Random Forest", "KNN"])
+  st.sidebar.write("")
+  st.sidebar.write("")
+  
   age = st.sidebar.number_input(label=":violet[**Age**]", min_value=df_final['age'].min(), max_value=df_final['age'].max())
   st.sidebar.write(f":orange[Min] value: :orange[**{df_final['age'].min()}**], :red[Max] value: :red[**{df_final['age'].max()}**]")
   st.sidebar.write("")
@@ -192,6 +216,7 @@ with tab1:
   st.sidebar.write("")
 
   data = {
+    'Prediction Model': model,
     'Age': age,
     'Sex': sex_sb,
     'Chest pain type': cp_sb,
@@ -220,6 +245,13 @@ with tab1:
   st.write("")
   if predict_btn:
     inputs = [[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak]]
+    if model == "XGBoost":
+      model = xgb_model
+    elif model == "Random Forest":
+      model = rf_model
+    elif model == "KNN":
+      model = knn_model
+      
     prediction = model.predict(inputs)[0]
 
     bar = st.progress(0)
