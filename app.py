@@ -294,6 +294,13 @@ with tab2:
   st.write("")
   file_uploaded = st.file_uploader("Upload a CSV file", type='csv')
 
+  if model == "XGBoost":
+    model = xgb_model
+  elif model == "Random Forest":
+    model = rf_model
+  elif model == "KNN":
+    model = knn_model
+
   if file_uploaded:
     uploaded_df = pd.read_csv(file_uploaded)
     prediction_arr = model.predict(uploaded_df)
