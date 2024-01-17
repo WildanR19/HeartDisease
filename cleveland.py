@@ -89,7 +89,6 @@ X, y = smote.fit_resample(X, y)
 xgb_model = pickle.load(open("model/cleveland/xgb.pkl", 'rb'))
 rf_model = pickle.load(open("model/cleveland/rf.pkl", 'rb'))
 knn_model = pickle.load(open("model/cleveland/knn.pkl", 'rb'))
-lr_model = pickle.load(open("model/cleveland/lr.pkl", 'rb'))
 svm_model = pickle.load(open("model/cleveland/svm.pkl", 'rb'))
 
 xgb_y_pred = xgb_model.predict(X)
@@ -103,10 +102,6 @@ rf_accuracy = round((rf_accuracy * 100), 2)
 knn_y_pred = knn_model.predict(X)
 knn_accuracy = accuracy_score(y, knn_y_pred)
 knn_accuracy = round((knn_accuracy * 100), 2)
-
-lr_y_pred = lr_model.predict(X)
-lr_accuracy = accuracy_score(y, lr_y_pred)
-lr_accuracy = round((lr_accuracy * 100), 2)
 
 svm_y_pred = svm_model.predict(X)
 svm_accuracy = accuracy_score(y, svm_y_pred)
@@ -129,7 +124,6 @@ data_model = {
   'XGBoost Model': f'{xgb_accuracy :.2f}%',
   'Random Forest Model': f'{rf_accuracy :.2f}%',
   'KNN Model': f'{knn_accuracy :.2f}%',
-  'Logistic Regression Model': f'{lr_accuracy :.2f}%',
   'SVM Model': f'{svm_accuracy :.2f}%'
 }
 
@@ -144,7 +138,7 @@ tab1, tab2 = st.tabs(["Single-predict", "Multi-predict"])
 with tab1:
   st.sidebar.header("**User Input** Sidebar")
 
-  model = st.sidebar.selectbox(label=":violet[**Model**]", options=["XGBoost", "Random Forest", "KNN", "Logistic Regression", "SVM"])
+  model = st.sidebar.selectbox(label=":violet[**Model**]", options=["XGBoost", "Random Forest", "KNN", "SVM"])
   st.sidebar.write("")
   st.sidebar.write("")
   
@@ -263,6 +257,8 @@ with tab1:
       model = rf_model
     elif model == "KNN":
       model = knn_model
+    elif model == "SVM":
+      model = svm_model
       
     prediction = model.predict(inputs)[0]
 
@@ -312,6 +308,8 @@ with tab2:
     model = rf_model
   elif model == "KNN":
     model = knn_model
+  elif model == "SVM":
+    model = svm_model
 
   if file_uploaded:
     uploaded_df = pd.read_csv(file_uploaded)
